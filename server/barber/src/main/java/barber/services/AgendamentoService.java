@@ -1,7 +1,12 @@
 package barber.services;
 
 import barber.entities.Agendamento;
+import barber.entities.Barbeiro;
+import barber.entities.Cliente;
+import barber.entities.StatusAgendamento;
 import barber.repositories.AgendamentoRepository;
+import barber.repositories.BarbeiroRepository;
+import barber.repositories.ClienteRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,9 +15,17 @@ import java.util.List;
 public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
+    private final ClienteRepository clienteRepository;
+    private final BarbeiroRepository barbeiroRepository;
 
-    public AgendamentoService(AgendamentoRepository agendamentoRepository) {
+    public AgendamentoService(
+            AgendamentoRepository agendamentoRepository,
+            ClienteRepository clienteRepository,
+            BarbeiroRepository barbeiroRepository) {
+
         this.agendamentoRepository = agendamentoRepository;
+        this.clienteRepository = clienteRepository;
+        this.barbeiroRepository = barbeiroRepository;
     }
 
     public List<Agendamento> findAll() {
@@ -27,10 +40,21 @@ public class AgendamentoService {
 
     public Agendamento create(Agendamento agendamento) {
 
+        Cliente cliente = clienteRepository.findById(
+                agendamento.getCliente().getId()
+        ).orElseThrow(() ->
+                new RuntimeException("Cliente não encontrado"));
+
+        Barbeiro barbeiro = barbeiroRepository.findById(
+                agendamento.getBarbeiro().getId()
+        ).orElseThrow(() ->
+                new RuntimeException("Barbeiro não encontrado"));
+
+        agendamento.setCliente(cliente);
+        agendamento.setBarbeiro(barbeiro);
+
         if (agendamento.getStatus() == null) {
-            agendamento.setStatus(
-                    barber.entities.StatusAgendamento.AGENDADO
-            );
+            agendamento.setStatus(StatusAgendamento.AGENDADO);
         }
 
         return agendamentoRepository.save(agendamento);
@@ -40,8 +64,18 @@ public class AgendamentoService {
 
         Agendamento agendamentoExistente = findById(id);
 
-        agendamentoExistente.setCliente(agendamento.getCliente());
-        agendamentoExistente.setBarbeiro(agendamento.getBarbeiro());
+        Cliente cliente = clienteRepository.findById(
+                agendamento.getCliente().getId()
+        ).orElseThrow(() ->
+                new RuntimeException("Cliente não encontrado"));
+
+        Barbeiro barbeiro = barbeiroRepository.findById(
+                agendamento.getBarbeiro().getId()
+        ).orElseThrow(() ->
+                new RuntimeException("Barbeiro não encontrado"));
+
+        agendamentoExistente.setCliente(cliente);
+        agendamentoExistente.setBarbeiro(barbeiro);
         agendamentoExistente.setData(agendamento.getData());
         agendamentoExistente.setHorario(agendamento.getHorario());
         agendamentoExistente.setStatus(agendamento.getStatus());
