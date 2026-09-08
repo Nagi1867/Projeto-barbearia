@@ -50,6 +50,19 @@ public class AgendamentoService {
         ).orElseThrow(() ->
                 new RuntimeException("Barbeiro não encontrado"));
 
+        boolean horarioOcupado =
+                agendamentoRepository.existsByBarbeiroIdAndDataAndHorario(
+                        barbeiro.getId(),
+                        agendamento.getData(),
+                        agendamento.getHorario()
+                );
+
+        if (horarioOcupado) {
+            throw new RuntimeException(
+                    "Este barbeiro já possui um agendamento neste horário"
+            );
+        }
+
         agendamento.setCliente(cliente);
         agendamento.setBarbeiro(barbeiro);
 
