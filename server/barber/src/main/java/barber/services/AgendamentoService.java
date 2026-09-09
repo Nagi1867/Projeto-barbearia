@@ -7,6 +7,7 @@ import barber.repositories.ClienteRepository;
 import barber.repositories.ServicoRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -56,25 +57,18 @@ public class AgendamentoService {
         ).orElseThrow(() ->
                 new RuntimeException("Serviço não encontrado"));
 
-        boolean horarioOcupado =
-                agendamentoRepository.existsByBarbeiroIdAndDataAndHorario(
-                        barbeiro.getId(),
-                        agendamento.getData(),
-                        agendamento.getHorario()
-                );
-
-        if (horarioOcupado) {
-            throw new RuntimeException(
-                    "Este barbeiro já possui um agendamento neste horário"
-            );
-        }
-
         agendamento.setCliente(cliente);
         agendamento.setBarbeiro(barbeiro);
         agendamento.setServico(servico);
 
         if (agendamento.getStatus() == null) {
             agendamento.setStatus(StatusAgendamento.AGENDADO);
+        }
+
+        if (existeConflito(agendamento, null)) {
+            throw new RuntimeException(
+                    "O barbeiro já possui um agendamento nesse período"
+            );
         }
 
         return agendamentoRepository.save(agendamento);
@@ -106,6 +100,12 @@ public class AgendamentoService {
         agendamentoExistente.setHorario(agendamento.getHorario());
         agendamentoExistente.setStatus(agendamento.getStatus());
 
+        if (existeConflito(agendamentoExistente, id)) {
+            throw new RuntimeException(
+                    "O barbeiro já possui um agendamento nesse período"
+            );
+        }
+
         return agendamentoRepository.save(agendamentoExistente);
     }
 
@@ -114,5 +114,55 @@ public class AgendamentoService {
         Agendamento agendamentoExistente = findById(id);
 
         agendamentoRepository.delete(agendamentoExistente);
+    }
+
+    private boolean existeConflito(
+            Agendamento novoAgendamento,
+            Long idIgnorar) {
+
+        List<Agendamento> agendamentos =
+                agendamentoRepository.findByBarbeiroIdAndData(
+                        novoAgendamento.getBarbeiro().getId(),
+                        novoAgendamento.getData()
+                );
+
+        LocalTime novoInicio =
+                novoAgendamento.getHorario();
+
+        LocalTime novoFim =
+                novoInicio.plusMinutes(
+                        novoAgendamento.getServico().getDuracao()
+                );
+
+        for (Agendamento existente : agendamentos) {
+
+            if (idIgnorar != null &&
+                    existente.getId().equals(idIgnorar)) {
+                continue;
+            }
+
+            if (existente.getStatus() ==
+                    StatusAgendamento.CANCELADO) {
+                continue;
+            }
+
+            LocalTime inicioExistente =
+                    existente.getHorario();
+
+            LocalTime fimExistente =
+                    inicioExistente.plusMinutes(
+                            existente.getServico().getDuracao()
+                    );
+
+            boolean conflito =
+                    novoInicio.isBefore(fimExistente)
+                            && novoFim.isAfter(inicioExistente);
+
+            if (conflito) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
