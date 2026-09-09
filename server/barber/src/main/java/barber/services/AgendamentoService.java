@@ -1,12 +1,10 @@
 package barber.services;
 
-import barber.entities.Agendamento;
-import barber.entities.Barbeiro;
-import barber.entities.Cliente;
-import barber.entities.StatusAgendamento;
+import barber.entities.*;
 import barber.repositories.AgendamentoRepository;
 import barber.repositories.BarbeiroRepository;
 import barber.repositories.ClienteRepository;
+import barber.repositories.ServicoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,15 +15,18 @@ public class AgendamentoService {
     private final AgendamentoRepository agendamentoRepository;
     private final ClienteRepository clienteRepository;
     private final BarbeiroRepository barbeiroRepository;
+    private final ServicoRepository servicoRepository;
 
     public AgendamentoService(
             AgendamentoRepository agendamentoRepository,
             ClienteRepository clienteRepository,
-            BarbeiroRepository barbeiroRepository) {
+            BarbeiroRepository barbeiroRepository,
+            ServicoRepository servicoRepository) {
 
         this.agendamentoRepository = agendamentoRepository;
         this.clienteRepository = clienteRepository;
         this.barbeiroRepository = barbeiroRepository;
+        this.servicoRepository = servicoRepository;
     }
 
     public List<Agendamento> findAll() {
@@ -50,6 +51,11 @@ public class AgendamentoService {
         ).orElseThrow(() ->
                 new RuntimeException("Barbeiro não encontrado"));
 
+        Servico servico = servicoRepository.findById(
+                agendamento.getServico().getId()
+        ).orElseThrow(() ->
+                new RuntimeException("Serviço não encontrado"));
+
         boolean horarioOcupado =
                 agendamentoRepository.existsByBarbeiroIdAndDataAndHorario(
                         barbeiro.getId(),
@@ -65,6 +71,7 @@ public class AgendamentoService {
 
         agendamento.setCliente(cliente);
         agendamento.setBarbeiro(barbeiro);
+        agendamento.setServico(servico);
 
         if (agendamento.getStatus() == null) {
             agendamento.setStatus(StatusAgendamento.AGENDADO);
@@ -87,8 +94,14 @@ public class AgendamentoService {
         ).orElseThrow(() ->
                 new RuntimeException("Barbeiro não encontrado"));
 
+        Servico servico = servicoRepository.findById(
+                agendamento.getServico().getId()
+        ).orElseThrow(() ->
+                new RuntimeException("Serviço não encontrado"));
+
         agendamentoExistente.setCliente(cliente);
         agendamentoExistente.setBarbeiro(barbeiro);
+        agendamentoExistente.setServico(servico);
         agendamentoExistente.setData(agendamento.getData());
         agendamentoExistente.setHorario(agendamento.getHorario());
         agendamentoExistente.setStatus(agendamento.getStatus());

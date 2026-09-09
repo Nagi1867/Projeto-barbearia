@@ -31,18 +31,24 @@ public class Agendamento {
     @Column(nullable = false)
     private StatusAgendamento status;
 
+    @ManyToOne
+    @JoinColumn(name = "servico_id", nullable = false)
+    private Servico servico;
+
     public Agendamento() {
     }
 
     public Agendamento(
             Cliente cliente,
             Barbeiro barbeiro,
+            Servico servico,
             LocalDate data,
             LocalTime horario,
             StatusAgendamento status) {
 
         this.cliente = cliente;
         this.barbeiro = barbeiro;
+        this.servico = servico;
         this.data = data;
         this.horario = horario;
         this.status = status;
@@ -90,5 +96,13 @@ public class Agendamento {
 
     public void setStatus(StatusAgendamento status) {
         this.status = status;
+    }
+
+    public Servico getServico() {
+        return servico;
+    }
+
+    public void setServico(Servico servico) {
+        this.servico = servico;
     }
 }
