@@ -37,7 +37,9 @@ public class AgendamentoService {
     public Agendamento findById(Long id) {
         return agendamentoRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Agendamento não encontrado"));
+                        new ResourceNotFoundException(
+                                "Agendamento não encontrado"
+                        ));
     }
 
     public Agendamento create(Agendamento agendamento) {
@@ -66,7 +68,7 @@ public class AgendamentoService {
         }
 
         if (existeConflito(agendamento, null)) {
-            throw new RuntimeException(
+            throw new BusinessException(
                     "O barbeiro já possui um agendamento nesse período"
             );
         }
@@ -101,9 +103,9 @@ public class AgendamentoService {
         agendamentoExistente.setStatus(agendamento.getStatus());
 
         if (existeConflito(agendamentoExistente, id)) {
-            throw new RuntimeException(
-                    "O barbeiro já possui um agendamento nesse período"
-            );
+                throw new RuntimeException(
+                        "O barbeiro já possui um agendamento nesse período"
+                );
         }
 
         return agendamentoRepository.save(agendamentoExistente);

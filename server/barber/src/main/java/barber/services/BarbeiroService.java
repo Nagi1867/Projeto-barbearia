@@ -21,7 +21,8 @@ public class BarbeiroService {
 
     public Barbeiro findById(Long id) {
         return barbeiroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Barbeiro não encontrado"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Barbeiro não encontrado"));
     }
 
     public Barbeiro create(Barbeiro barbeiro) {

@@ -25,7 +25,8 @@ public class ClienteService {
     // Buscar cliente por ID
     public Cliente findById(Long id) {
         return clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Cliente não encontrado"));
     }
 
     // Criar cliente

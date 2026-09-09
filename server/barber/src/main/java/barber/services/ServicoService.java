@@ -22,7 +22,7 @@ public class ServicoService {
     public Servico findById(Long id) {
         return servicoRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Serviço não encontrado"));
+                        new ResourceNotFoundException("Serviço não encontrado"));
     }
 
     public Servico create(Servico servico) {
