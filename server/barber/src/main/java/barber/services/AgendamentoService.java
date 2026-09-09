@@ -7,7 +7,9 @@ import barber.repositories.ClienteRepository;
 import barber.repositories.ServicoRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -166,5 +168,78 @@ public class AgendamentoService {
         }
 
         return false;
+    }
+
+    public List<LocalTime> horariosDisponiveis(
+            Long barbeiroId,
+            LocalDate data,
+            Long servicoId) {
+
+        Barbeiro barbeiro = barbeiroRepository.findById(barbeiroId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Barbeiro não encontrado"));
+
+        Servico servico = servicoRepository.findById(servicoId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Serviço não encontrado"));
+
+        List<Agendamento> agendamentos =
+                agendamentoRepository.findByBarbeiroIdAndData(
+                        barbeiro.getId(),
+                        data
+                );
+
+        List<LocalTime> horariosDisponiveis = new ArrayList<>();
+
+        LocalTime inicioFuncionamento = LocalTime.of(8, 0);
+        LocalTime fimFuncionamento = LocalTime.of(18, 0);
+
+        for (
+                LocalTime horario = inicioFuncionamento;
+                horario.isBefore(fimFuncionamento);
+                horario = horario.plusMinutes(15)
+        ) {
+
+            LocalTime fimNovoAgendamento =
+                    horario.plusMinutes(servico.getDuracao());
+
+            if (fimNovoAgendamento.isAfter(fimFuncionamento)) {
+                continue;
+            }
+
+            boolean conflito = false;
+
+            for (Agendamento existente : agendamentos) {
+
+                if (existente.getStatus() ==
+                        StatusAgendamento.CANCELADO) {
+                    continue;
+                }
+
+                LocalTime inicioExistente =
+                        existente.getHorario();
+
+                LocalTime fimExistente =
+                        inicioExistente.plusMinutes(
+                                existente.getServico().getDuracao()
+                        );
+
+                if (
+                        horario.isBefore(fimExistente)
+                                && fimNovoAgendamento.isAfter(inicioExistente)
+                ) {
+                    conflito = true;
+                    break;
+                }
+            }
+
+            if (!conflito) {
+                horariosDisponiveis.add(horario);
+            }
+        }
+
+        return horariosDisponiveis;
     }
 }

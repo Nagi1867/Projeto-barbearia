@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -16,6 +18,22 @@ public class AgendamentoController {
 
     public AgendamentoController(AgendamentoService agendamentoService) {
         this.agendamentoService = agendamentoService;
+    }
+
+    @GetMapping("/disponiveis")
+    public ResponseEntity<List<LocalTime>> horariosDisponiveis(
+            @RequestParam Long barbeiroId,
+            @RequestParam LocalDate data,
+            @RequestParam Long servicoId) {
+
+        List<LocalTime> horarios =
+                agendamentoService.horariosDisponiveis(
+                        barbeiroId,
+                        data,
+                        servicoId
+                );
+
+        return ResponseEntity.ok(horarios);
     }
 
     @GetMapping
