@@ -75,6 +75,44 @@ public class AgendamentoService {
             );
         }
 
+        LocalDate hoje = LocalDate.now();
+        LocalTime agora = LocalTime.now();
+
+        if (agendamento.getData().isBefore(hoje)) {
+            throw new BusinessException(
+                    "Não é possível realizar um agendamento em uma data passada"
+            );
+        }
+
+        if (agendamento.getData().equals(hoje)
+                && agendamento.getHorario().isBefore(agora)) {
+
+            throw new BusinessException(
+                    "Não é possível realizar um agendamento em um horário passado"
+            );
+        }
+
+        LocalTime inicioFuncionamento = LocalTime.of(8, 0);
+        LocalTime fimFuncionamento = LocalTime.of(18, 0);
+
+        if (agendamento.getHorario().isBefore(inicioFuncionamento)
+                || agendamento.getHorario().isAfter(fimFuncionamento)) {
+
+            throw new BusinessException(
+                    "O horário está fora do funcionamento da barbearia"
+            );
+        }
+
+        LocalTime fimAgendamento =
+                agendamento.getHorario()
+                        .plusMinutes(servico.getDuracao());
+
+        if (fimAgendamento.isAfter(fimFuncionamento)) {
+            throw new BusinessException(
+                    "O serviço ultrapassa o horário de funcionamento da barbearia"
+            );
+        }
+
         return agendamentoRepository.save(agendamento);
     }
 
