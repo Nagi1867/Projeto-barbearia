@@ -7,6 +7,7 @@ import barber.repositories.ClienteRepository;
 import barber.repositories.ServicoRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -89,6 +90,15 @@ public class AgendamentoService {
 
             throw new BusinessException(
                     "Não é possível realizar um agendamento em um horário passado"
+            );
+        }
+
+        DayOfWeek diaDaSemana =
+                agendamento.getData().getDayOfWeek();
+
+        if (diaDaSemana == DayOfWeek.SUNDAY) {
+            throw new BusinessException(
+                    "A barbearia não funciona aos domingos"
             );
         }
 
@@ -228,6 +238,10 @@ public class AgendamentoService {
                         barbeiro.getId(),
                         data
                 );
+
+        if (data.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            return new ArrayList<>();
+        }
 
         List<LocalTime> horariosDisponiveis = new ArrayList<>();
 
