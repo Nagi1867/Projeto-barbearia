@@ -1,6 +1,7 @@
 package barber.repositories;
 
 import barber.entities.Agendamento;
+import barber.entities.StatusAgendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -13,4 +14,8 @@ public interface AgendamentoRepository
             Long barbeiroId,
             LocalDate data
     );
+
+    long countByData(LocalDate data);
+
+    long countByStatus(StatusAgendamento status);
 }
