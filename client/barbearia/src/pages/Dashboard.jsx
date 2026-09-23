@@ -1,4 +1,10 @@
+import StatCard from "../components/StatCard"
+import AppointmentRow from "../components/AppointmentRow"
+import { agendamentos } from "../data/mockData"
+
 function Dashboard() {
+    const proximosAgendamentos = agendamentos.slice(0, 4)
+
     return (
         <div className="min-h-screen bg-gray-100 p-8">
             <div className="mx-auto max-w-7xl">
@@ -21,61 +27,32 @@ function Dashboard() {
 
                 <div className="mb-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
-                    <div className="rounded-xl border border-gray-200 bg-white p-6">
-                        <p className="text-sm font-medium text-gray-500">
-                            Agendamentos hoje
-                        </p>
+                    <StatCard
+                        titulo="Agendamentos hoje"
+                        valor="8"
+                        descricao="+2 comparado a ontem"
+                        descricaoClassName="text-green-600"
+                    />
 
-                        <p className="mt-3 text-3xl font-bold text-gray-900">
-                            8
-                        </p>
+                    <StatCard
+                        titulo="Clientes"
+                        valor="124"
+                        descricao="+8 este mês"
+                        descricaoClassName="text-green-600"
+                    />
 
-                        <p className="mt-2 text-sm text-green-600">
-                            +2 comparado a ontem
-                        </p>
-                    </div>
+                    <StatCard
+                        titulo="Barbeiros"
+                        valor="4"
+                        descricao="Todos ativos"
+                    />
 
-                    <div className="rounded-xl border border-gray-200 bg-white p-6">
-                        <p className="text-sm font-medium text-gray-500">
-                            Clientes
-                        </p>
-
-                        <p className="mt-3 text-3xl font-bold text-gray-900">
-                            124
-                        </p>
-
-                        <p className="mt-2 text-sm text-green-600">
-                            +8 este mês
-                        </p>
-                    </div>
-
-                    <div className="rounded-xl border border-gray-200 bg-white p-6">
-                        <p className="text-sm font-medium text-gray-500">
-                            Barbeiros
-                        </p>
-
-                        <p className="mt-3 text-3xl font-bold text-gray-900">
-                            4
-                        </p>
-
-                        <p className="mt-2 text-sm text-gray-500">
-                            Todos ativos
-                        </p>
-                    </div>
-
-                    <div className="rounded-xl border border-gray-200 bg-white p-6">
-                        <p className="text-sm font-medium text-gray-500">
-                            Faturamento hoje
-                        </p>
-
-                        <p className="mt-3 text-3xl font-bold text-gray-900">
-                            R$ 320
-                        </p>
-
-                        <p className="mt-2 text-sm text-green-600">
-                            +12% este mês
-                        </p>
-                    </div>
+                    <StatCard
+                        titulo="Faturamento hoje"
+                        valor="R$ 320"
+                        descricao="+12% este mês"
+                        descricaoClassName="text-green-600"
+                    />
 
                 </div>
 
@@ -83,7 +60,7 @@ function Dashboard() {
 
                     <div className="rounded-xl border border-gray-200 bg-white p-6 lg:col-span-2">
 
-                        <div className="mb-6 flex items-center justify-between">
+                        <div className="mb-2 flex items-center justify-between">
                             <div>
                                 <h2 className="text-lg font-semibold text-gray-900">
                                     Próximos agendamentos
@@ -100,96 +77,14 @@ function Dashboard() {
                         </div>
 
                         <div className="divide-y divide-gray-100">
-
-                            <div className="flex items-center justify-between py-4">
-                                <div>
-                                    <p className="font-medium text-gray-900">
-                                        João Silva
-                                    </p>
-
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        Corte de cabelo · Lucas
-                                    </p>
-                                </div>
-
-                                <div className="text-right">
-                                    <p className="font-semibold text-gray-900">
-                                        14:30
-                                    </p>
-
-                                    <span className="mt-1 inline-block rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
-                                        Confirmado
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between py-4">
-                                <div>
-                                    <p className="font-medium text-gray-900">
-                                        Pedro Santos
-                                    </p>
-
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        Barba · Marcos
-                                    </p>
-                                </div>
-
-                                <div className="text-right">
-                                    <p className="font-semibold text-gray-900">
-                                        15:15
-                                    </p>
-
-                                    <span className="mt-1 inline-block rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-medium text-yellow-700">
-                                        Aguardando
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between py-4">
-                                <div>
-                                    <p className="font-medium text-gray-900">
-                                        Gabriel Oliveira
-                                    </p>
-
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        Corte + Barba · Lucas
-                                    </p>
-                                </div>
-
-                                <div className="text-right">
-                                    <p className="font-semibold text-gray-900">
-                                        16:00
-                                    </p>
-
-                                    <span className="mt-1 inline-block rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
-                                        Confirmado
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between py-4">
-                                <div>
-                                    <p className="font-medium text-gray-900">
-                                        Rafael Costa
-                                    </p>
-
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        Corte de cabelo · Marcos
-                                    </p>
-                                </div>
-
-                                <div className="text-right">
-                                    <p className="font-semibold text-gray-900">
-                                        17:00
-                                    </p>
-
-                                    <span className="mt-1 inline-block rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-medium text-yellow-700">
-                                        Aguardando
-                                    </span>
-                                </div>
-                            </div>
-
+                            {proximosAgendamentos.map((agendamento) => (
+                                <AppointmentRow
+                                    key={agendamento.id}
+                                    agendamento={agendamento}
+                                />
+                            ))}
                         </div>
+
                     </div>
 
                     <div className="rounded-xl border border-gray-200 bg-white p-6">
