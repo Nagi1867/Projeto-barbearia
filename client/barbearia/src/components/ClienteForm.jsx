@@ -1,22 +1,49 @@
 import { useState } from "react"
 
-function ClienteForm({ onClose }) {
+import api from "../services/api"
+
+function ClienteForm({ onClose, onClienteCriado }) {
+
     const [nome, setNome] = useState("")
     const [telefone, setTelefone] = useState("")
+    const [carregando, setCarregando] = useState(false)
+    const [erro, setErro] = useState("")
 
-    function handleSubmit(event) {
+    async function cadastrarCliente(event) {
+
         event.preventDefault()
 
-        console.log({
-            nome,
-            telefone,
-        })
+        try {
+
+            setCarregando(true)
+            setErro("")
+
+            const response = await api.post("/clientes", {
+                nome,
+                telefone,
+            })
+
+            onClienteCriado(response.data)
+
+            onClose()
+
+        } catch (error) {
+
+            console.error("Erro ao cadastrar cliente:", error)
+
+            setErro("Não foi possível cadastrar o cliente.")
+
+        } finally {
+
+            setCarregando(false)
+
+        }
     }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
 
-            <div className="w-full max-w-lg rounded-xl bg-white shadow-xl">
+            <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
 
                 <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
 
@@ -31,17 +58,18 @@ function ClienteForm({ onClose }) {
                     </div>
 
                     <button
+                        type="button"
                         onClick={onClose}
-                        className="text-2xl leading-none text-gray-400 transition hover:text-gray-900"
+                        className="text-xl text-gray-400 transition hover:text-gray-700"
                     >
                         ×
                     </button>
 
                 </div>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={cadastrarCliente}>
 
-                    <div className="space-y-5 p-6">
+                    <div className="space-y-5 px-6 py-6">
 
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -52,9 +80,9 @@ function ClienteForm({ onClose }) {
                                 type="text"
                                 value={nome}
                                 onChange={(event) => setNome(event.target.value)}
-                                placeholder="Digite o nome do cliente"
+                                placeholder="Nome do cliente"
                                 required
-                                className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400"
+                                className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-gray-400"
                             />
                         </div>
 
@@ -64,14 +92,20 @@ function ClienteForm({ onClose }) {
                             </label>
 
                             <input
-                                type="tel"
+                                type="text"
                                 value={telefone}
                                 onChange={(event) => setTelefone(event.target.value)}
-                                placeholder="(17) 99999-9999"
+                                placeholder="(00) 00000-0000"
                                 required
-                                className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400"
+                                className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-gray-400"
                             />
                         </div>
+
+                        {erro && (
+                            <p className="text-sm text-red-500">
+                                {erro}
+                            </p>
+                        )}
 
                     </div>
 
@@ -80,16 +114,17 @@ function ClienteForm({ onClose }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+                            className="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-100"
                         >
                             Cancelar
                         </button>
 
                         <button
                             type="submit"
-                            className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
+                            disabled={carregando}
+                            className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            Cadastrar cliente
+                            {carregando ? "Cadastrando..." : "Cadastrar cliente"}
                         </button>
 
                     </div>
