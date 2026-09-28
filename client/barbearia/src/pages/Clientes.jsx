@@ -10,10 +10,55 @@ function Clientes() {
     const [mostrarFormulario, setMostrarFormulario] = useState(false)
     const [carregando, setCarregando] = useState(true)
     const [erro, setErro] = useState(false)
+    const [clienteEditando, setClienteEditando] = useState(null)
 
     useEffect(() => {
         carregarClientes()
     }, [])
+
+    function editarCliente(cliente) {
+        setClienteEditando(cliente)
+    }
+
+    function atualizarCliente(clienteAtualizado) {
+
+        setClientes((clientesAtuais) =>
+            clientesAtuais.map((cliente) =>
+                cliente.id === clienteAtualizado.id
+                    ? clienteAtualizado
+                    : cliente
+            )
+        )
+
+        setClienteEditando(null)
+    }
+
+    async function excluirCliente(id) {
+
+        const confirmar = window.confirm(
+            "Tem certeza que deseja excluir este cliente?"
+        )
+
+        if (!confirmar) {
+            return
+        }
+
+        try {
+
+            await api.delete(`/clientes/${id}`)
+
+            setClientes((clientesAtuais) =>
+                clientesAtuais.filter((cliente) => cliente.id !== id)
+            )
+
+        } catch (error) {
+
+            console.error("Erro ao excluir cliente:", error)
+
+            setErro(true)
+
+        }
+    }
 
     async function carregarClientes() {
         try {
@@ -194,11 +239,17 @@ function Clientes() {
 
                                                 <div className="flex justify-end gap-2">
 
-                                                    <button className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900">
+                                                    <button
+                                                        onClick={() => editarCliente(cliente)}
+                                                        className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+                                                    >
                                                         Editar
                                                     </button>
 
-                                                    <button className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50">
+                                                    <button
+                                                        onClick={() => excluirCliente(cliente.id)}
+                                                        className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                                    >
                                                         Excluir
                                                     </button>
 
@@ -234,6 +285,14 @@ function Clientes() {
                 <ClienteForm
                     onClose={() => setMostrarFormulario(false)}
                     onClienteCriado={adicionarCliente}
+                />
+            )}
+
+            {clienteEditando && (
+                <ClienteForm
+                    cliente={clienteEditando}
+                    onClose={() => setClienteEditando(null)}
+                    onClienteAtualizado={atualizarCliente}
                 />
             )}
 

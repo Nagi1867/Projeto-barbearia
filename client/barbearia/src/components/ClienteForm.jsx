@@ -1,15 +1,26 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import api from "../services/api"
 
-function ClienteForm({ onClose, onClienteCriado }) {
+function ClienteForm({ cliente, onClose, onClienteCriado, onClienteAtualizado }) {
 
     const [nome, setNome] = useState("")
     const [telefone, setTelefone] = useState("")
     const [carregando, setCarregando] = useState(false)
     const [erro, setErro] = useState("")
 
-    async function cadastrarCliente(event) {
+    const editando = !!cliente
+
+    useEffect(() => {
+
+        if (cliente) {
+            setNome(cliente.nome)
+            setTelefone(cliente.telefone)
+        }
+
+    }, [cliente])
+
+    async function salvarCliente(event) {
 
         event.preventDefault()
 
@@ -18,20 +29,32 @@ function ClienteForm({ onClose, onClienteCriado }) {
             setCarregando(true)
             setErro("")
 
-            const response = await api.post("/clientes", {
-                nome,
-                telefone,
-            })
+            if (editando) {
 
-            onClienteCriado(response.data)
+                const response = await api.put(`/clientes/${cliente.id}`, {
+                    nome,
+                    telefone,
+                })
+
+                onClienteAtualizado(response.data)
+
+            } else {
+
+                const response = await api.post("/clientes", {
+                    nome,
+                    telefone,
+                })
+
+                onClienteCriado(response.data)
+            }
 
             onClose()
 
         } catch (error) {
 
-            console.error("Erro ao cadastrar cliente:", error)
+            console.error("Erro ao salvar cliente:", error)
 
-            setErro("Não foi possível cadastrar o cliente.")
+            setErro("Não foi possível salvar o cliente.")
 
         } finally {
 
@@ -49,11 +72,14 @@ function ClienteForm({ onClose, onClienteCriado }) {
 
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900">
-                            Novo cliente
+                            {editando ? "Editar cliente" : "Novo cliente"}
                         </h2>
 
                         <p className="mt-1 text-sm text-gray-500">
-                            Cadastre um novo cliente
+                            {editando
+                                ? "Altere os dados do cliente"
+                                : "Cadastre um novo cliente"
+                            }
                         </p>
                     </div>
 
@@ -67,7 +93,7 @@ function ClienteForm({ onClose, onClienteCriado }) {
 
                 </div>
 
-                <form onSubmit={cadastrarCliente}>
+                <form onSubmit={salvarCliente}>
 
                     <div className="space-y-5 px-6 py-6">
 
@@ -124,7 +150,12 @@ function ClienteForm({ onClose, onClienteCriado }) {
                             disabled={carregando}
                             className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            {carregando ? "Cadastrando..." : "Cadastrar cliente"}
+                            {carregando
+                                ? "Salvando..."
+                                : editando
+                                    ? "Salvar alterações"
+                                    : "Cadastrar cliente"
+                            }
                         </button>
 
                     </div>
